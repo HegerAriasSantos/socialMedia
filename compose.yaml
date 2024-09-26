@@ -1,0 +1,13 @@
+services:
+  db:
+    container_name: Database
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME}
+      POSTGRES_DB: ${SPRING_DATASOURCE_DB}
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    ports:
+      - 5432:5432

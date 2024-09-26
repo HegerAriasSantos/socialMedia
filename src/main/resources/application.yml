@@ -1,0 +1,27 @@
+# App
+spring:
+  application:
+    name: socialmedia
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  config:
+    import: optional:file:.env[.properties]
+  profiles:
+    active: ${MYENV}
+server:
+  port: 3000
+  error:
+    include-stacktrace: never
+
+springdoc:
+  api-docs:
+    path: /api-docs
