@@ -3,9 +3,12 @@ package com.projects.socialmedia.user.application;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.projects.socialmedia.common.exceptions.NotFoundException;
+import com.projects.socialmedia.common.interfaces.IMapper;
 import com.projects.socialmedia.task.domain.Task;
 import com.projects.socialmedia.task.infrastructure.TaskRepository;
 import com.projects.socialmedia.user.application.dtos.UserCreateDto;
@@ -13,7 +16,10 @@ import com.projects.socialmedia.user.application.dtos.UserUpdateDto;
 import com.projects.socialmedia.user.domain.User;
 import com.projects.socialmedia.user.infrastructure.UserRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
+@Transactional
 public class UserService {
 
   @Autowired
@@ -22,8 +28,11 @@ public class UserService {
   @Autowired
   private TaskRepository taskRepository;
 
-  public List<User> getAll() {
-    return userRepository.findAll();
+  @Autowired
+  private IMapper<User, UserCreateDto> userMapper;
+
+  public Page<User> getAll(Pageable pageable) {
+    return userRepository.findAll(pageable);
   }
 
   public User getById(String id) {
@@ -39,17 +48,11 @@ public class UserService {
       throw new NotFoundException(String.format("User with username {%s} already exists", dto.getUsername()));
     }
 
-    var userToCreate = User
-        .builder()
-        .fistName(dto.getFirstName())
-        .lastName(dto.getLastName())
-        .password(dto.getPassword())
-        .username(dto.getUsername())
-        .build();
+    var userToCreate = userMapper.mapFrom(dto);
     var createdUser = this.userRepository.save(userToCreate);
 
     List<Task> tasksList = null;
-    if (dto.getTasks().size() > 0) {
+    if (dto.getTasks() != null && dto.getTasks().size() > 0) {
       tasksList = dto.getTasks().stream()
           .map((task) -> Task.builder()
               .title(task.title)
@@ -66,7 +69,7 @@ public class UserService {
   public User update(UserUpdateDto dto, String id) {
     var userFounded = this.getById(id);
     if (dto.getFirstName() != null)
-      userFounded.setFistName(dto.getFirstName());
+      userFounded.setFirstName(dto.getFirstName());
     if (dto.getLastName() != null)
       userFounded.setLastName(dto.getLastName());
     if (dto.getPassword() != null)

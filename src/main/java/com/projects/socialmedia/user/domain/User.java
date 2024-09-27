@@ -33,7 +33,7 @@ import lombok.NoArgsConstructor;
 public class User extends BaseEntity {
 
   @Column(length = 50, nullable = false, name = "first_name")
-  private String fistName;
+  private String firstName;
 
   @Column(length = 50, nullable = false, name = "last_name")
   private String lastName;
